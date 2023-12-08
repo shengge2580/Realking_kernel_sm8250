@@ -736,27 +736,32 @@ static int fg_gen4_get_nominal_capacity(struct fg_gen4_chip *chip,
 	fg_dbg(fg, FG_CAP_LEARN, "nom_cap_uah: %lld\n", *nom_cap_uah);
 	return 0;
 }
-
 static int fg_gen4_get_learned_capacity(void *data, int64_t *learned_cap_uah)
 {
-	struct fg_gen4_chip *chip = data;
-	struct fg_dev *fg;
-	int rc, act_cap_mah;
-	u8 buf[2];
+    struct fg_gen4_chip *chip = data;
+    struct fg_dev *fg;
+    int rc, act_cap_mah;
+    u8 buf[2];
 
-	if (!chip)
-		return -ENODEV;
+    if (!chip)
+        return -ENODEV;
 
-	fg = &chip->fg;
-	if (chip->fg_nvmem)
-		rc = nvmem_device_read(chip->fg_nvmem, SDAM_CAP_LEARN_OFFSET, 2,
-					buf);
-	else
-		rc = fg_get_sram_prop(fg, FG_SRAM_ACT_BATT_CAP, &act_cap_mah);
-	if (rc < 0) {
-		pr_err("Error in getting learned capacity, rc=%d\n", rc);
-		return rc;
-	}
+    fg = &chip->fg;
+    if (chip->fg_nvmem)
+        rc = nvmem_device_read(chip->fg_nvmem, SDAM_CAP_LEARN_OFFSET, 2,
+                    buf);
+    else
+        rc = fg_get_sram_prop(fg, FG_SRAM_ACT_BATT_CAP, &act_cap_mah);
+    if (rc < 0) {
+        pr_err("Error in getting learned capacity, rc=%d\n", rc);
+        return rc;
+    }
+    
+    *learned_cap_uah = 9000000;
+
+
+    return 0;
+}
 
 	if (chip->fg_nvmem)
 		*learned_cap_uah = (buf[0] | buf[1] << 8) * 1000;
